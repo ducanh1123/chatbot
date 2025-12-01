@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Chatbot Tư Vấn Hoa (AI Service)</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4; }
+        #chat-container { max-width: 600px; margin: 50px auto; background: white; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); border-radius: 8px; overflow: hidden; }
+        #chat-box { padding: 15px; max-height: 400px; overflow-y: scroll; border-bottom: 1px solid #ddd; }
+        .message { margin-bottom: 10px; padding: 8px 12px; border-radius: 15px; max-width: 80%; }
+        .user-message { background-color: #007bff; color: white; margin-left: auto; text-align: right; }
+        .bot-message { background-color: #e9ecef; color: #333; margin-right: auto; text-align: left; }
+        #input-container { display: flex; padding: 10px; }
+        #user-input { flex-grow: 1; padding: 10px; border: 1px solid #ccc; border-radius: 20px; margin-right: 10px; }
+        #send-button { padding: 10px 15px; border: none; background-color: #28a745; color: white; border-radius: 20px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div id="chat-container">
+        <div id="chat-box">
+            <div class="message bot-message">Chào bạn! Tôi là trợ lý ảo của AI Flower Service 🌸. Tôi có thể tư vấn ý nghĩa hoa hoặc tạo lời chúc AI độc đáo.</div>
+        </div>
+        <div id="input-container">
+            <input type="text" id="user-input" placeholder="Nhập tin nhắn của bạn..." onkeypress="if(event.keyCode == 13) sendMessage()">
+            <button id="send-button" onclick="sendMessage()">Gửi</button>
+        </div>
+    </div>
+
+    <script>
+        function displayMessage(sender, message) {
+            const chatBox = document.getElementById('chat-box');
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message');
+            messageDiv.classList.add(sender === 'user' ? 'user-message' : 'bot-message');
+            const htmlMessage = message.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+            messageDiv.innerHTML = htmlMessage;
+            chatBox.appendChild(messageDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        async function sendMessage() {
+            const inputElement = document.getElementById('user-input');
+            const message = inputElement.value.trim();
+
+            if (message === "") return;
+
+            displayMessage('user', message);
+            inputElement.value = '';
+            document.getElementById('send-button').disabled = true;
+
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message: message })
+                });
+
+                const data = await response.json();
+                displayMessage('bot', data.response);
+            } catch (error) {
+                console.error('Lỗi khi gọi API:', error);
+                displayMessage('bot', 'Xin lỗi, Service AI đang gặp sự cố. Vui lòng thử lại sau.');
+            } finally {
+                document.getElementById('send-button').disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
