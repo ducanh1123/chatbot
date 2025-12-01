@@ -1,4 +1,4 @@
-# app.py (API Server)
+
 from flask import Flask, request, jsonify, render_template
 from chatbot_logic import chatbot_main
 
@@ -28,4 +28,5 @@ def chat_api():
     return jsonify({'response': bot_response})
 
 if __name__ == '__main__':
+
     app.run(debug=True)
